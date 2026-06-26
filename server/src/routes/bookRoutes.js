@@ -1,0 +1,56 @@
+// ============================================================
+//  bookRoutes.js  —  /api/books
+//  Catalog browsing/search (all users) and catalog management
+//  (admin only). Also CSV import/export and cover lookup (L3).
+// ============================================================
+
+import { Router } from "express";
+// import { requireAuth, requireAdmin } from "../middleware/auth.js";
+// import { db } from "../db/db.js";
+
+const router = Router();
+
+// GET /api/books  -> list catalog, with search & filters
+//   query params: ?q= (title/author), ?author= ?genre= ?year=
+//   ?available=true  (Level 1 search, Level 2 filters)
+// TODO: build the SQL query from the provided filters.
+router.get("/", (req, res) => {
+  res.status(501).json({ error: "TODO: list/search books" });
+});
+
+// GET /api/books/:id  -> book detail + copies availability (L1/L2)
+// TODO: return the book plus how many copies are available.
+router.get("/:id", (req, res) => {
+  res.status(501).json({ error: "TODO: book detail" });
+});
+
+// POST /api/books  -> add a book (admin) (L1)
+// TODO: requireAdmin; insert book; optionally create N copies.
+router.post("/", (req, res) => {
+  res.status(501).json({ error: "TODO: add book" });
+});
+
+// PUT /api/books/:id  -> edit a book (admin) (L1)
+router.put("/:id", (req, res) => {
+  res.status(501).json({ error: "TODO: edit book" });
+});
+
+// DELETE /api/books/:id  -> remove a book (admin) (L1)
+router.delete("/:id", (req, res) => {
+  res.status(501).json({ error: "TODO: delete book" });
+});
+
+// ---- Level 3 -----------------------------------------------
+
+// GET /api/books/export/csv  -> download catalog as CSV (admin)
+router.get("/export/csv", (req, res) => {
+  res.status(501).json({ error: "TODO: export CSV" });
+});
+
+// POST /api/books/import/csv  -> upload a CSV to bulk-add books (admin)
+// Uses multer for the file upload (see ROADMAP).
+router.post("/import/csv", (req, res) => {
+  res.status(501).json({ error: "TODO: import CSV" });
+});
+
+export default router;
