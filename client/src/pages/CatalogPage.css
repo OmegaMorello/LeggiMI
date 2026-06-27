@@ -1,0 +1,95 @@
+/* ============================================================
+   CatalogPage.css — Two-column layout: sidebar + main grid.
+   ============================================================ */
+
+.catalog {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+/* ---- Left sidebar (filters) ---- */
+.catalog-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 73px;
+}
+
+/* ---- Right main area (search + grid) ---- */
+.catalog-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.catalog-count {
+  font-size: 14px;
+  color: var(--text);
+  margin: 0;
+}
+
+.catalog-count strong {
+  color: var(--text-h);
+}
+
+/* ---- Book grid: 3 columns ---- */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ---- States ---- */
+.catalog-loading,
+.catalog-error,
+.catalog-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.catalog-error {
+  color: #b3261e;
+  background: rgba(179, 38, 30, 0.1);
+  border: 1px solid rgba(179, 38, 30, 0.3);
+  border-radius: 9px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .catalog-error {
+    color: #ff8a80;
+  }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .catalog {
+    flex-direction: column;
+  }
+
+  .catalog-sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .catalog {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .catalog-grid {
+    grid-template-columns: 1fr;
+  }
+}

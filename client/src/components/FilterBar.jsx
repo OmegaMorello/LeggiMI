@@ -1,45 +1,82 @@
-import { useState } from 'react';
-import './FilterBar.css';
+import { useState } from "react";
+import "./FilterBar.css";
 
-export default function FilterBar({ q, onSearch }) {
-    const [localFilters, setLocalFilters] = useState({
-        author: q.author || '',
-        genre: q.genre || '',
-        year: q.year || '',
-        available: q.available || false
-    });
+const EMPTY = { author: "", genre: "", year: "", available: false };
 
-    return (
-        <div className="filter-bar">
-            <form onSubmit={(e) => { e.preventDefault(); onSearch(localFilters); }}>
-                <input
-                    type="text"
-                    placeholder="Autore"
-                    value={localFilters.author}
-                    onChange={(e) => setLocalFilters({ ...localFilters, author: e.target.value })}
-                />
-                <input
-                    type="text"
-                    placeholder="Genere"
-                    value={localFilters.genre}
-                    onChange={(e) => setLocalFilters({ ...localFilters, genre: e.target.value })}
-                />
-                <input
-                    type="number"
-                    placeholder="Anno"
-                    value={localFilters.year}
-                    onChange={(e) => setLocalFilters({ ...localFilters, year: e.target.value })}
-                />
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={localFilters.available}
-                        onChange={(e) => setLocalFilters({ ...localFilters, available: e.target.checked })}
-                    />
-                    Solo disponibili
-                </label>
-                <button type="submit">Filtra</button>
-            </form>
+export default function FilterBar({ filters, genres, authors, onApply }) {
+  const [local, setLocal] = useState({
+    author: filters.author || "",
+    genre: filters.genre || "",
+    year: filters.year || "",
+    available: filters.available || false,
+  });
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    onApply(local);
+  }
+
+  function handleReset() {
+    setLocal(EMPTY);
+    onApply(EMPTY);
+  }
+
+  return (
+    <aside className="filter-bar">
+      <h3>Filtri</h3>
+      <form onSubmit={handleSubmit}>
+        <div className="filter-field">
+          <span>Genere</span>
+          <select
+            value={local.genre}
+            onChange={(e) => setLocal({ ...local, genre: e.target.value })}
+          >
+            <option value="">Tutti</option>
+            {genres.map((g) => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
         </div>
-    );
+
+        <div className="filter-field">
+          <span>Autore</span>
+          <select
+            value={local.author}
+            onChange={(e) => setLocal({ ...local, author: e.target.value })}
+          >
+            <option value="">Tutti</option>
+            {authors.map((a) => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-field">
+          <span>Anno</span>
+          <input
+            type="number"
+            placeholder="es. 2005"
+            value={local.year}
+            onChange={(e) => setLocal({ ...local, year: e.target.value })}
+          />
+        </div>
+
+        <label className="filter-check">
+          <input
+            type="checkbox"
+            checked={local.available}
+            onChange={(e) => setLocal({ ...local, available: e.target.checked })}
+          />
+          Solo disponibili
+        </label>
+
+        <div className="filter-actions">
+          <button className="filter-apply" type="submit">Filtra</button>
+          <button className="filter-reset" type="button" onClick={handleReset}>
+            Reset
+          </button>
+        </div>
+      </form>
+    </aside>
+  );
 }
