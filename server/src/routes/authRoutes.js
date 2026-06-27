@@ -5,31 +5,74 @@
 // ============================================================
 
 import { Router } from "express";
-// import bcrypt from "bcrypt";
-// import { db } from "../db/db.js";
+import bcrypt from "bcrypt";
+import { db } from "../db/db.js";
 
 const router = Router();
 
 // POST /api/auth/register  -> create a user (Level 1)
-// TODO: validate body, hash password with bcrypt, insert into users.
-router.post("/register", (req, res) => {
-  res.status(501).json({ error: "TODO: register" });
+router.post("/register", async (req, res) => {
+  const name = (req.body.name || "").trim();
+  // Normalize the email so "Mario@X.com " and "mario@x.com" are the
+  // same account (and the UNIQUE check can't be bypassed by casing).
+  const email = (req.body.email || "").trim().toLowerCase();
+  const password = req.body.password || "";
+
+  if (!name || !email || !password)
+    return res.status(400).json({ error: "Missing fields" });
+  if (password.length < 8)
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 8 characters" });
+
+  const exists = db.prepare("SELECT 1 FROM users WHERE email = ?").get(email);
+  if (exists)
+    return res.status(409).json({ error: "Email already registered" });
+
+  const hash = await bcrypt.hash(password, 10);
+  try {
+    db.prepare(
+      "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+    ).run(name, email, hash);
+  } catch (err) {
+    // Safety net for the race between the check above and the insert:
+    // the UNIQUE constraint is the real guarantee.
+    if (String(err.message).includes("UNIQUE"))
+      return res.status(409).json({ error: "Email already registered" });
+    throw err;
+  }
+
+  res.status(201).json({ message: "User created" });
 });
 
 // POST /api/auth/login  -> verify credentials, start a session (Level 1)
-// TODO: look up user by email, compare bcrypt hash, set req.session.user.
-router.post("/login", (req, res) => {
-  res.status(501).json({ error: "TODO: login" });
+router.post("/login", async (req, res) => {
+  // Same normalization as register, so login matches the stored email.
+  const email = (req.body.email || "").trim().toLowerCase();
+  const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
+  const ok =
+    user && (await bcrypt.compare(req.body.password || "", user.password_hash));
+
+  if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+
+  req.session.regenerate((err) => {
+    if (err) return res.status(500).json({ error: "Login failed" });
+
+    req.session.user = { id: user.id, name: user.name, role: user.role };
+    res.json(req.session.user);
+  });
 });
 
 // POST /api/auth/logout  -> destroy the session
-// TODO: req.session.destroy(...) and clear the cookie.
 router.post("/logout", (req, res) => {
-  res.status(501).json({ error: "TODO: logout" });
+  req.session.destroy((err) => {
+    res.clearCookie("connect.sid");
+    if (err) return res.status(500).json({ error: "Logout failed" });
+    res.json({ ok: true });
+  });
 });
 
 // GET /api/auth/me  -> return the current user (or null)
-// TODO: respond with req.session.user || null.
 router.get("/me", (req, res) => {
   res.json(req.session.user || null);
 });
