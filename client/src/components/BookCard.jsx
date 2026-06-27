@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./BookCard.css";
 
 const PLACEHOLDER =
@@ -6,9 +7,10 @@ const PLACEHOLDER =
 
 export default function BookCard({ book }) {
   const [imgSrc, setImgSrc] = useState(book.cover_url || PLACEHOLDER);
+  const navigate = useNavigate();
 
   return (
-    <div className="book-card">
+    <div className="book-card" onClick={() => navigate(`/books/${book.id}`)}>
       <img
         className="book-cover"
         src={imgSrc}
