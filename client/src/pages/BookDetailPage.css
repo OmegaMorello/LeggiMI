@@ -1,0 +1,246 @@
+/* ============================================================
+   BookDetailPage.css — Book detail layout: cover left, info right,
+   description below, borrow button at the bottom.
+   ============================================================ */
+
+.detail {
+  padding: 24px;
+  flex: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ---- Back button ---- */
+.detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
+.detail-back:hover {
+  color: var(--text-h);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+/* ---- Main card ---- */
+.detail-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ---- Top section: cover + info side by side ---- */
+.detail-top {
+  display: flex;
+  gap: 0;
+}
+
+/* ---- Cover (always rendered, fixed aspect ratio) ---- */
+.detail-cover-wrap {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--code-bg);
+}
+
+.detail-cover {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---- Info panel ---- */
+.detail-info {
+  flex: 1;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.detail-author {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.detail-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.detail-isbn {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+  font-family: var(--mono);
+}
+
+.detail-availability {
+  margin-top: auto;
+  padding: 12px 16px;
+  background: var(--code-bg);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text-h);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-avail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.detail-avail-dot.available {
+  background: #22c55e;
+}
+
+.detail-avail-dot.unavailable {
+  background: #ef4444;
+}
+
+/* ---- Description section ---- */
+.detail-description {
+  padding: 24px 32px;
+  border-top: 1px solid var(--border);
+}
+
+.detail-desc-label {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.2px;
+}
+
+.detail-desc-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* ---- Borrow button ---- */
+.detail-borrow {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.05s;
+}
+
+.detail-borrow:hover {
+  opacity: 0.92;
+}
+
+.detail-borrow:active {
+  transform: translateY(1px);
+}
+
+.detail-borrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---- Loading / Error states ---- */
+.detail-loading,
+.detail-error {
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.detail-error {
+  color: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  .detail-error {
+    color: #ff8a80;
+  }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .detail {
+    padding: 16px;
+  }
+
+  .detail-top {
+    flex-direction: column;
+  }
+
+  .detail-cover-wrap {
+    width: 100%;
+  }
+
+  .detail-cover {
+    min-height: 300px;
+    max-height: 360px;
+  }
+
+  .detail-info {
+    padding: 20px;
+  }
+
+  .detail-title {
+    font-size: 22px;
+  }
+
+  .detail-description {
+    padding: 20px;
+  }
+}
