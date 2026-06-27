@@ -69,11 +69,10 @@ export default function AuthPage() {
           <p className="auth-tagline">La tua biblioteca, a portata di click</p>
         </div>
 
-        <div className="auth-tabs" role="tablist">
+        <div className="auth-tabs">
           <button
             type="button"
-            role="tab"
-            aria-selected={isLogin}
+            aria-pressed={isLogin}
             className={`auth-tab ${isLogin ? "is-active" : ""}`}
             onClick={() => switchMode("login")}
           >
@@ -81,8 +80,7 @@ export default function AuthPage() {
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={!isLogin}
+            aria-pressed={!isLogin}
             className={`auth-tab ${!isLogin ? "is-active" : ""}`}
             onClick={() => switchMode("register")}
           >
