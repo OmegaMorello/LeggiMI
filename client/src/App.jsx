@@ -1,5 +1,6 @@
 import { useAuth } from "./context/AuthContext";
 import AuthPage from './pages/AuthPage'
+import CatalogPage from './pages/CatalogPage'
 
 function App() {
   const {user, loading, logout} = useAuth();
@@ -9,6 +10,7 @@ function App() {
     <div>
       <h1>Welcome, {user.name}!</h1>
       <button onClick={logout}>Log out</button>
+      <CatalogPage />
     </div>
   );
 }

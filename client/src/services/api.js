@@ -48,3 +48,18 @@ export function logout() {
 export function getMe() {
   return request("/api/auth/me");
 }
+
+// ---- Books ---------------------------------------------------
+
+// GET /api/books -> list catalog, with search & filters
+// query params: ?q= (title/author), ?author= ?genre= ?year=
+// ?available=true  (Level 1 search, Level 2 filters)
+export function getBooks({ q, author, genre, year, available }) {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  if (author) params.set("author", author);
+  if (genre) params.set("genre", genre);
+  if (year) params.set("year", year);
+  if (available) params.set("available", "true");
+  return request(`/api/books?${params.toString()}`);
+}
