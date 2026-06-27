@@ -63,3 +63,8 @@ export function getBooks({ q, author, genre, year, available }) {
   if (available) params.set("available", "true");
   return request(`/api/books?${params.toString()}`);
 }
+
+// GET /api/books/:id -> book detail + copies availability
+export function getBook(id) {
+  return request(`/api/books/${id}`);
+}

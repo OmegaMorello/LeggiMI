@@ -1,6 +1,8 @@
+import { Routes, Route } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import AuthPage from "./pages/AuthPage";
 import CatalogPage from "./pages/CatalogPage";
+import BookDetailPage from "./pages/BookDetailPage";
 import "./App.css";
 
 function App() {
@@ -25,7 +27,10 @@ function App() {
           </button>
         </div>
       </header>
-      <CatalogPage />
+      <Routes>
+        <Route path="/" element={<CatalogPage />} />
+        <Route path="/books/:id" element={<BookDetailPage />} />
+      </Routes>
     </>
   );
 }

@@ -14,7 +14,6 @@ const router = Router();
 
 // query params: ?q= (title/author), ?author= ?genre= ?year=
 // ?available=true  (Level 1 search, Level 2 filters)
-// TODO: build the SQL query from the provided filters.
 router.get("/", (req, res) => {
   const q = (req.query.q || "").trim();
   const author = (req.query.author || "").trim();
@@ -34,15 +33,31 @@ router.get("/", (req, res) => {
        ))`,
   );
 
-  const books = dbQuery.all({ q, author, genre, year, available: available ? 1 : 0 });
+  const books = dbQuery.all({
+    q,
+    author,
+    genre,
+    year,
+    available: available ? 1 : 0,
+  });
 
   res.json(books);
 });
 
 // GET /api/books/:id  -> book detail + copies availability (L1/L2)
-// TODO: return the book plus how many copies are available.
 router.get("/:id", (req, res) => {
-  res.status(501).json({ error: "TODO: book detail" });
+  const bookId = parseInt(req.params.id);
+  const book = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
+  if (!book) {
+    return res.status(404).json({ error: "Book not found" });
+  }
+
+  const copies = db
+    .prepare("SELECT * FROM copies WHERE book_id = ?")
+    .all(bookId);
+  const availableCopies = copies.filter((c) => c.status === "available").length;
+
+  res.json({ ...book, availableCopies });
 });
 
 // POST /api/books  -> add a book (admin) (L1)
