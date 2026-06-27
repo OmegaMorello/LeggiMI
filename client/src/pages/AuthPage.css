@@ -1,0 +1,205 @@
+/* ============================================================
+   AuthPage.css
+   Styling for the login / registration screen.
+   Reuses the design tokens defined in index.css (--bg, --text,
+   --accent, --border, --shadow...) so it follows the app theme
+   and adapts to dark mode for free.
+   ============================================================ */
+
+/* Full-height stage that centers the card. flex:1 lets it grow
+   inside #root (which is a column flex container). */
+.auth {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* The card itself. */
+.auth-card {
+  margin-top: 1em;
+  width: 100%;
+  min-width: 80%;
+  max-width: 400px;
+  padding: 36px 32px;
+  box-sizing: border-box;
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* ---- Brand header ---------------------------------------- */
+.auth-brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-logo {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.auth-title {
+  /* override the huge global h1 */
+  font-size: 30px;
+  letter-spacing: -0.5px;
+  margin: 0;
+  color: var(--text-h);
+}
+
+.auth-tagline {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+/* ---- Tabs ------------------------------------------------- */
+.auth-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 24px;
+  background: var(--code-bg);
+  border-radius: 10px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 9px 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.auth-tab.is-active {
+  background: var(--bg);
+  color: var(--text-h);
+  box-shadow: var(--shadow);
+}
+
+/* ---- Form ------------------------------------------------- */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-field > span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+.auth-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 13px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.auth-field input::placeholder {
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.auth-hint {
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* ---- Error ------------------------------------------------ */
+.auth-error {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #b3261e;
+  background: rgba(179, 38, 30, 0.1);
+  border: 1px solid rgba(179, 38, 30, 0.3);
+  border-radius: 9px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .auth-error {
+    color: #ff8a80;
+  }
+}
+
+/* ---- Submit ----------------------------------------------- */
+.auth-submit {
+  margin-top: 4px;
+  padding: 12px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.05s;
+}
+
+.auth-submit:hover {
+  opacity: 0.92;
+}
+
+.auth-submit:active {
+  transform: translateY(1px);
+}
+
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- Switch line ------------------------------------------ */
+.auth-switch {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.auth-link {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
