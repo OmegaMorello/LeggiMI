@@ -19,15 +19,16 @@ CREATE TABLE IF NOT EXISTS users (
 -- ---- Books -------------------------------------------------
 -- One row per title (the catalog entry, not the physical item).
 CREATE TABLE IF NOT EXISTS books (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  title       TEXT    NOT NULL,
-  author      TEXT    NOT NULL,
-  genre       TEXT,
-  year        INTEGER,
-  isbn        TEXT,
-  cover_url   TEXT,             -- filled from external API (Level 3)
-  description TEXT,
-  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  title          TEXT    NOT NULL,
+  title_original TEXT,             -- original-language title (for cover lookup)
+  author         TEXT    NOT NULL,
+  genre          TEXT,
+  year           INTEGER,
+  isbn           TEXT,
+  cover_url      TEXT,             -- filled from external API (Level 3)
+  description    TEXT,
+  created_at     TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
 -- ---- Copies ------------------------------------------------
