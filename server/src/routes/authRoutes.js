@@ -64,8 +64,12 @@ router.post("/login", async (req, res) => {
 });
 
 // POST /api/auth/logout  -> destroy the session
-router.post("/logout", async (req, res) => {
-  req.session.destroy(() => res.json({ ok: true }));
+router.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    res.clearCookie("connect.sid");
+    if (err) return res.status(500).json({ error: "Logout failed" });
+    res.json({ ok: true });
+  });
 });
 
 // GET /api/auth/me  -> return the current user (or null)
