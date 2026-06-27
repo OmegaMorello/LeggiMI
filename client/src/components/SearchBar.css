@@ -1,0 +1,58 @@
+/* ============================================================
+   SearchBar.css — Full-width search input, AuthPage style.
+   ============================================================ */
+
+.search-bar {
+  width: 100%;
+}
+
+.search-bar form {
+  display: flex;
+  gap: 8px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 11px 13px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.search-bar input::placeholder {
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.search-bar button {
+  padding: 11px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.05s;
+  white-space: nowrap;
+}
+
+.search-bar button:hover {
+  opacity: 0.92;
+}
+
+.search-bar button:active {
+  transform: translateY(1px);
+}

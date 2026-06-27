@@ -1,18 +1,9 @@
-// ===============================================================
-// CatalogPage.jsx
-// ===============================================================
-
-//React imports
-import { useState, useEffect } from "react";
-
-// Component imports
+import { useState, useEffect, useMemo } from "react";
 import BookCard from "../components/BookCard";
 import SearchBar from "../components/SearchBar";
 import FilterBar from "../components/FilterBar";
-
-// Service imports
 import { getBooks } from "../services/api";
-
+import "./CatalogPage.css";
 
 export default function CatalogPage() {
   const [books, setBooks] = useState([]);
@@ -27,31 +18,73 @@ export default function CatalogPage() {
   });
 
   useEffect(() => {
-    async function fetchBooks() {
-      try {
-        const data = await getBooks(filters);
-        setBooks(data);
-      } catch (err) {
-        setError(err.message);
-      }
-      finally {
-        setLoading(false);
-      }
-    }
-    fetchBooks();
+    let stale = false;
+    getBooks(filters)
+      .then((data) => { if (!stale) { setBooks(data); setError(null); } })
+      .catch((err) => { if (!stale) setError(err.message); })
+      .finally(() => { if (!stale) setLoading(false); });
+    return () => { stale = true; };
   }, [filters]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const genres = useMemo(
+    () => [...new Set(books.map((b) => b.genre).filter(Boolean))].sort(),
+    [books],
+  );
+
+  const authors = useMemo(
+    () => [...new Set(books.map((b) => b.author).filter(Boolean))].sort(),
+    [books],
+  );
+
+  function handleSearch(q) {
+    setLoading(true);
+    setFilters((f) => ({ ...f, q }));
+  }
+
+  function handleFilter(patch) {
+    setLoading(true);
+    setFilters((f) => ({ ...f, ...patch }));
+  }
 
   return (
-    <div>
-      <h1>Catalogo dei Libri</h1>
-        <SearchBar q={filters.q} onSearch={(q) => setFilters((f) => ({ ...f, q }))} />
-        <FilterBar q={filters} onSearch={setFilters} />
-      {books.map((book, index) => (
-        <BookCard key={index} book={book} />
-      ))}
+    <div className="catalog">
+      <div className="catalog-sidebar">
+        <FilterBar
+          filters={filters}
+          genres={genres}
+          authors={authors}
+          onApply={handleFilter}
+        />
+      </div>
+
+      <div className="catalog-main">
+        <SearchBar q={filters.q} onSearch={handleSearch} />
+
+        {loading && <p className="catalog-loading">Caricamento catalogo…</p>}
+
+        {error && <p className="catalog-error">{error}</p>}
+
+        {!loading && !error && (
+          <>
+            <p className="catalog-count">
+              <strong>{books.length}</strong>{" "}
+              {books.length === 1 ? "libro trovato" : "libri trovati"}
+            </p>
+
+            {books.length === 0 ? (
+              <p className="catalog-empty">
+                Nessun libro corrisponde ai criteri di ricerca.
+              </p>
+            ) : (
+              <div className="catalog-grid">
+                {books.map((book) => (
+                  <BookCard key={book.id} book={book} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
