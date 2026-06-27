@@ -7,7 +7,7 @@
   flex-direction: column;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
   transition: box-shadow 0.2s, transform 0.15s;
   cursor: pointer;
@@ -27,29 +27,32 @@
 }
 
 .book-info {
-  padding: 14px 16px 16px;
+  padding: 10px 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   flex: 1;
 }
 
 .book-title {
   margin: 0;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-h);
   line-height: 1.3;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .book-author {
   margin: 0;
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .book-meta {
@@ -62,17 +65,17 @@
 
 .book-badge {
   display: inline-block;
-  padding: 3px 8px;
-  font-size: 11px;
+  padding: 2px 6px;
+  font-size: 10px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: 5px;
   background: var(--accent-bg);
   color: var(--accent);
   white-space: nowrap;
 }
 
 .book-year {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text);
   margin-left: auto;
 }
