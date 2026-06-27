@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import BookCard from "../components/BookCard";
 import SearchBar from "../components/SearchBar";
 import FilterBar from "../components/FilterBar";
@@ -78,7 +79,9 @@ export default function CatalogPage() {
             ) : (
               <div className="catalog-grid">
                 {books.map((book) => (
-                  <BookCard key={book.id} book={book} />
+                    <Link to={`/books/${book.id}`} key={book.id} className="book-link">
+                      <BookCard key={book.id} book={book} />
+                    </Link>
                 ))}
               </div>
             )}
