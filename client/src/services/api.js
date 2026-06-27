@@ -18,3 +18,33 @@ async function request(url, options = {}) {
 export function getHealth() {
   return request("/api/health");
 }
+
+// ---- Auth ----------------------------------------------------
+// These map 1:1 to the routes in server/src/routes/authRoutes.js.
+// The AuthContext is the only place that should call them.
+
+// POST /api/auth/register -> { User Created }
+export function register({ name, email, password }) {
+  return request("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ name, email, password }),
+  });
+}
+
+// POST /api/auth/login -> { id, name, role }
+export function login({ email, password }) {
+  return request("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+// POST /api/auth/logout -> { ok: true }
+export function logout() {
+  return request("/api/auth/logout", { method: "POST" });
+}
+
+// GET /api/auth/me -> { id, name, role } | null
+export function getMe() {
+  return request("/api/auth/me");
+}
