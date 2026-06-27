@@ -55,8 +55,12 @@ router.post("/login", async (req, res) => {
 
   if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-  req.session.user = { id: user.id, name: user.name, role: user.role };
-  res.json(req.session.user);
+  req.session.regenerate((err) => {
+    if (err) return res.status(500).json({ error: "Login failed" });
+
+    req.session.user = { id: user.id, name: user.name, role: user.role };
+    res.json(req.session.user);
+  });
 });
 
 // POST /api/auth/logout  -> destroy the session
