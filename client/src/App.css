@@ -1,3 +1,85 @@
-/* ============================================================
-   App.css — Top-level layout.
-   ============================================================ */
+.app-layout {
+  display: flex;
+  min-height: 100svh;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* ---- Mobile header (hidden on desktop) ---- */
+.mobile-header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 99;
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-h);
+  }
+
+  .mobile-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-greeting {
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .mobile-greeting strong {
+    color: var(--text-h);
+  }
+
+  .mobile-logout {
+    padding: 5px 10px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .mobile-logout:hover {
+    color: var(--text-h);
+    background: var(--accent-bg);
+    border-color: var(--accent-border);
+  }
+
+  .app-main {
+    padding-bottom: 52px;
+  }
+}

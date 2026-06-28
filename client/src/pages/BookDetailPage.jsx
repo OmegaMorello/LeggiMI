@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getBook } from "../services/api";
-import { requestLoan } from "../services/api";
+import { getBook, requestLoan } from "../services/api";
+import Toast from "../components/Toast";
 import "./BookDetailPage.css";
 
 const PLACEHOLDER =
@@ -14,6 +14,7 @@ export default function BookDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imgSrc, setImgSrc] = useState(PLACEHOLDER);
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     let stale = false;
@@ -85,15 +86,19 @@ export default function BookDetailPage() {
       <button
         className="detail-borrow"
         disabled={!hasAvailable}
-        onClick={() => 
+        onClick={() =>
           requestLoan({ bookId: book.id })
-            .then(() => alert("Prestito richiesto con successo!"))
-            .then(() => getBook(id).then((data) => setBook(data)))
-            .catch((err) => alert(`Errore: ${err.message}`))
+            .then(() => {
+              setToast({ message: "Prestito richiesto con successo!", type: "success" });
+              return getBook(id).then((data) => setBook(data));
+            })
+            .catch((err) => setToast({ message: err.message, type: "error" }))
         }
       >
         {hasAvailable ? "Noleggia questo libro" : "Non disponibile"}
       </button>
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }

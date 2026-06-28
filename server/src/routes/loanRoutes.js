@@ -15,7 +15,7 @@ router.get("/mine", requireAuth, (req, res) => {
   try {
     const loans = db
       .prepare(
-        `SELECT loans.*, copies.book_id, books.title, books.cover_url
+        `SELECT loans.*, copies.book_id, books.title, books.author, books.cover_url
          FROM loans
          JOIN copies ON loans.copy_id = copies.id
          JOIN books ON copies.book_id = books.id
@@ -119,7 +119,7 @@ router.get("/all", requireAdmin, (req, res) => {
   try {
     const loans = db
       .prepare(
-        `SELECT loans.*, copies.book_id, books.title, users.name as user_name
+        `SELECT loans.*, copies.book_id, books.title, books.author, books.cover_url, users.name as user_name
          FROM loans
          JOIN copies ON loans.copy_id = copies.id
          JOIN books ON copies.book_id = books.id

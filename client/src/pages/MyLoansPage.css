@@ -1,0 +1,67 @@
+.loans-page {
+  padding: 24px;
+  flex: 1;
+  max-width: 800px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.loans-heading {
+  margin: 0 0 24px;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.5px;
+}
+
+.loans-section {
+  margin-bottom: 32px;
+}
+
+.loans-section-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.loans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.loans-empty {
+  font-size: 15px;
+  color: var(--text);
+  padding: 48px 0;
+  text-align: center;
+}
+
+.loans-loading,
+.loans-error {
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.loans-error {
+  color: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  .loans-error {
+    color: #ff8a80;
+  }
+}
+
+@media (max-width: 520px) {
+  .loans-page {
+    padding: 16px;
+  }
+
+  .loans-heading {
+    font-size: 20px;
+  }
+}
