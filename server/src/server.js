@@ -7,8 +7,12 @@
 import "dotenv/config"; // loads variables from .env (if present)
 import express from "express";
 import session from "express-session";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { db } from "./db/db.js"; // opens the DB and runs the schema
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Routers (one file per resource). Logic is added step by step.
 import authRoutes from "./routes/authRoutes.js";
@@ -36,6 +40,9 @@ app.use(
     },
   })
 );
+
+// --- Static files (uploaded covers) --------------------------
+app.use("/uploads", express.static(join(__dirname, "../uploads")));
 
 // --- API routes ---------------------------------------------
 app.use("/api/auth", authRoutes);

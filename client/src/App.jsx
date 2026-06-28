@@ -6,6 +6,7 @@ import CatalogPage from "./pages/CatalogPage";
 import BookDetailPage from "./pages/BookDetailPage";
 import MyLoansPage from "./pages/MyLoansPage";
 import AdminLoansPage from "./pages/AdminLoansPage";
+import BooksAdmin from "./pages/BooksAdmin";
 import "./App.css";
 
 function App() {
@@ -35,7 +36,10 @@ function App() {
             <Route path="/books/:id" element={<BookDetailPage />} />
             <Route path="/loans" element={<MyLoansPage />} />
             {user.role === "admin" && (
-              <Route path="/admin/loans" element={<AdminLoansPage />} />
+              <>
+                <Route path="/admin/loans" element={<AdminLoansPage />} />
+                <Route path="/admin/books" element={<BooksAdmin />} />
+              </>
             )}
           </Routes>
         </main>

@@ -1,19 +1,25 @@
-// ============================================================
-//  bookRoutes.js  —  /api/books
-//  Catalog browsing/search (all users) and catalog management
-//  (admin only). Also CSV import/export and cover lookup (L3).
-// ============================================================
-
 import { Router } from "express";
 import { requireAuth, requireAdmin } from "../middleware/auth.js";
 import { db } from "../db/db.js";
+import multer from "multer";
+import { randomUUID } from "node:crypto";
+import { existsSync, mkdirSync, unlinkSync } from "node:fs";
+import { extname, join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const uploadsDir = join(__dirname, "../../uploads/covers");
+if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadsDir),
+  filename: (_req, file, cb) => cb(null, `${randomUUID()}${extname(file.originalname)}`),
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 const router = Router();
 
 // GET /api/books  -> list catalog, with search & filters
-
-// query params: ?q= (title/author), ?author= ?genre= ?year=
-// ?available=true  (Level 1 search, Level 2 filters)
 router.get("/", (req, res) => {
   const q = (req.query.q || "").trim();
   const author = (req.query.author || "").trim();
@@ -22,7 +28,10 @@ router.get("/", (req, res) => {
   const available = req.query.available === "true";
 
   const dbQuery = db.prepare(
-    `SELECT * FROM books
+    `SELECT books.*,
+       (SELECT COUNT(*) FROM copies WHERE copies.book_id = books.id) AS totalCopies,
+       (SELECT COUNT(*) FROM copies WHERE copies.book_id = books.id AND copies.status = 'available') AS availableCopies
+     FROM books
      WHERE 1=1
        AND (:q = '' OR title LIKE '%' || :q || '%' OR author LIKE '%' || :q || '%')
        AND (:author = '' OR author LIKE '%' || :author || '%')
@@ -44,7 +53,52 @@ router.get("/", (req, res) => {
   res.json(books);
 });
 
-// GET /api/books/:id  -> book detail + copies availability (L1/L2)
+// GET /api/books/lookup/:isbn  -> lookup book metadata from Open Library
+router.get("/lookup/:isbn", requireAdmin, async (req, res) => {
+  const isbn = req.params.isbn.replace(/[^0-9Xx]/g, "");
+  if (!isbn) return res.status(400).json({ error: "ISBN mancante" });
+
+  try {
+    const resp = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+    if (!resp.ok) return res.status(404).json({ error: "ISBN non trovato su Open Library" });
+
+    const data = await resp.json();
+
+    let authorName = null;
+    if (data.authors && data.authors.length > 0) {
+      const authorKey = data.authors[0].key;
+      const authorResp = await fetch(`https://openlibrary.org${authorKey}.json`);
+      if (authorResp.ok) {
+        const authorData = await authorResp.json();
+        authorName = authorData.name || null;
+      }
+    }
+
+    let description = null;
+    if (data.description) {
+      description = typeof data.description === "string" ? data.description : data.description.value || null;
+    }
+
+    const coverUrl = data.covers && data.covers.length > 0
+      ? `https://covers.openlibrary.org/b/id/${data.covers[0]}-L.jpg`
+      : null;
+
+    const year = data.publish_date ? parseInt(data.publish_date.match(/\d{4}/)?.[0]) || null : null;
+
+    res.json({
+      title: data.title || null,
+      author: authorName,
+      year,
+      description,
+      cover_url: coverUrl,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET /api/books/:id  -> book detail + copies availability
 router.get("/:id", (req, res) => {
   const bookId = parseInt(req.params.id);
   const book = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
@@ -57,34 +111,199 @@ router.get("/:id", (req, res) => {
     .all(bookId);
   const availableCopies = copies.filter((c) => c.status === "available").length;
 
-  res.json({ ...book, availableCopies });
+  res.json({ ...book, copies, availableCopies });
 });
 
-// POST /api/books  -> add a book (admin) (L1)
-// TODO: requireAdmin; insert book; optionally create N copies.
-router.post("/", (req, res) => {
-  res.status(501).json({ error: "TODO: add book" });
+// POST /api/books  -> add a book (admin)
+router.post("/", requireAdmin, (req, res) => {
+  const { title, author, genre, year, isbn, cover_url, description, title_original, initialCopies } = req.body;
+
+  if (!title || !title.trim()) return res.status(400).json({ error: "Titolo obbligatorio" });
+  if (!author || !author.trim()) return res.status(400).json({ error: "Autore obbligatorio" });
+
+  const copies = Math.max(1, parseInt(initialCopies) || 1);
+
+  try {
+    let bookId;
+    db.transaction(() => {
+      const result = db.prepare(
+        `INSERT INTO books (title, author, genre, year, isbn, cover_url, description, title_original)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      ).run(
+        title.trim(),
+        author.trim(),
+        genre?.trim() || null,
+        parseInt(year) || null,
+        isbn?.trim() || null,
+        cover_url?.trim() || null,
+        description?.trim() || null,
+        title_original?.trim() || null
+      );
+      bookId = result.lastInsertRowid;
+
+      const insertCopy = db.prepare(
+        "INSERT INTO copies (book_id, code, status) VALUES (?, ?, 'available')"
+      );
+      for (let i = 1; i <= copies; i++) {
+        insertCopy.run(bookId, `${bookId}-${String(i).padStart(3, "0")}`);
+      }
+    })();
+
+    const book = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
+    res.status(201).json(book);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-// PUT /api/books/:id  -> edit a book (admin) (L1)
-router.put("/:id", (req, res) => {
-  res.status(501).json({ error: "TODO: edit book" });
+// PUT /api/books/:id  -> edit book metadata (admin)
+router.put("/:id", requireAdmin, (req, res) => {
+  const bookId = parseInt(req.params.id);
+  const { title, author, genre, year, isbn, cover_url, description, title_original } = req.body;
+
+  if (!title || !title.trim()) return res.status(400).json({ error: "Titolo obbligatorio" });
+  if (!author || !author.trim()) return res.status(400).json({ error: "Autore obbligatorio" });
+
+  try {
+    const existing = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
+    if (!existing) return res.status(404).json({ error: "Libro non trovato" });
+
+    db.prepare(
+      `UPDATE books SET title = ?, author = ?, genre = ?, year = ?, isbn = ?,
+       cover_url = ?, description = ?, title_original = ? WHERE id = ?`
+    ).run(
+      title.trim(),
+      author.trim(),
+      genre?.trim() || null,
+      parseInt(year) || null,
+      isbn?.trim() || null,
+      cover_url?.trim() || null,
+      description?.trim() || null,
+      title_original?.trim() || null,
+      bookId
+    );
+
+    const book = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
+    res.json(book);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-// DELETE /api/books/:id  -> remove a book (admin) (L1)
-router.delete("/:id", (req, res) => {
-  res.status(501).json({ error: "TODO: delete book" });
+// DELETE /api/books/:id  -> remove a book (admin)
+router.delete("/:id", requireAdmin, (req, res) => {
+  const bookId = parseInt(req.params.id);
+
+  try {
+    const book = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
+    if (!book) return res.status(404).json({ error: "Libro non trovato" });
+
+    const activeLoans = db.prepare(
+      `SELECT COUNT(*) as count FROM loans
+       JOIN copies ON loans.copy_id = copies.id
+       WHERE copies.book_id = ? AND loans.status = 'active'`
+    ).get(bookId);
+
+    if (activeLoans.count > 0) {
+      return res.status(409).json({
+        error: `Impossibile eliminare: ${activeLoans.count} prestito/i attivo/i per questo libro`
+      });
+    }
+
+    if (book.cover_url && book.cover_url.startsWith("/uploads/covers/")) {
+      const filePath = join(__dirname, "../..", book.cover_url);
+      try { unlinkSync(filePath); } catch {}
+    }
+
+    db.prepare("DELETE FROM books WHERE id = ?").run(bookId);
+    res.json({ message: "Libro eliminato" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST /api/books/:id/cover  -> upload cover image (admin)
+router.post("/:id/cover", requireAdmin, upload.single("cover"), (req, res) => {
+  const bookId = parseInt(req.params.id);
+
+  try {
+    const book = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
+    if (!book) return res.status(404).json({ error: "Libro non trovato" });
+
+    if (book.cover_url && book.cover_url.startsWith("/uploads/covers/")) {
+      const oldPath = join(__dirname, "../..", book.cover_url);
+      try { unlinkSync(oldPath); } catch {}
+    }
+
+    const coverUrl = `/uploads/covers/${req.file.filename}`;
+    db.prepare("UPDATE books SET cover_url = ? WHERE id = ?").run(coverUrl, bookId);
+
+    const updated = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
+    res.json(updated);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST /api/books/:id/copies  -> add a copy (admin)
+router.post("/:id/copies", requireAdmin, (req, res) => {
+  const bookId = parseInt(req.params.id);
+
+  try {
+    const book = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
+    if (!book) return res.status(404).json({ error: "Libro non trovato" });
+
+    const maxCopy = db.prepare(
+      "SELECT COUNT(*) as count FROM copies WHERE book_id = ?"
+    ).get(bookId);
+    const code = `${bookId}-${String(maxCopy.count + 1).padStart(3, "0")}`;
+
+    const result = db.prepare(
+      "INSERT INTO copies (book_id, code, status) VALUES (?, ?, 'available')"
+    ).run(bookId, code);
+
+    const copy = db.prepare("SELECT * FROM copies WHERE id = ?").get(result.lastInsertRowid);
+    res.status(201).json(copy);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// DELETE /api/books/:id/copies/:copyId  -> remove a copy (admin, only if available)
+router.delete("/:id/copies/:copyId", requireAdmin, (req, res) => {
+  const bookId = parseInt(req.params.id);
+  const copyId = parseInt(req.params.copyId);
+
+  try {
+    const copy = db.prepare(
+      "SELECT * FROM copies WHERE id = ? AND book_id = ?"
+    ).get(copyId, bookId);
+
+    if (!copy) return res.status(404).json({ error: "Copia non trovata" });
+
+    if (copy.status !== "available") {
+      return res.status(409).json({ error: "Impossibile rimuovere: copia attualmente in prestito" });
+    }
+
+    db.prepare("DELETE FROM copies WHERE id = ?").run(copyId);
+    res.json({ message: "Copia rimossa" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // ---- Level 3 -----------------------------------------------
 
-// GET /api/books/export/csv  -> download catalog as CSV (admin)
 router.get("/export/csv", (req, res) => {
   res.status(501).json({ error: "TODO: export CSV" });
 });
 
-// POST /api/books/import/csv  -> upload a CSV to bulk-add books (admin)
-// Uses multer for the file upload (see ROADMAP).
 router.post("/import/csv", (req, res) => {
   res.status(501).json({ error: "TODO: import CSV" });
 });
