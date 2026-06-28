@@ -19,6 +19,7 @@ export default function BooksAdmin() {
   const [formLoading, setFormLoading] = useState(false);
 
   const [deleteId, setDeleteId] = useState(null);
+  const [copyDelete, setCopyDelete] = useState(null);
   const [expandedBook, setExpandedBook] = useState(null);
 
   useEffect(() => {
@@ -98,26 +99,46 @@ export default function BooksAdmin() {
     }
   }
 
-  function handleAddCopy(bookId) {
-    addCopy(bookId)
+  function updateBookCopies(bookId, full) {
+    setBooks((prev) => prev.map((b) => (
+      b.id === bookId
+        ? {
+            ...b,
+            ...full,
+            _copies: full.copies,
+            totalCopies: full.copies.length,
+            availableCopies: full.availableCopies,
+          }
+        : b
+    )));
+  }
+
+  async function refreshBookCopies(bookId) {
+    const full = await getBook(bookId);
+    updateBookCopies(bookId, full);
+  }
+
+  function handleAddCopy(bookId, quantity) {
+    addCopy(bookId, quantity)
+      .then(() => refreshBookCopies(bookId))
       .then(() => {
-        setToast({ message: "Copia aggiunta", type: "success" });
-        getBook(bookId).then((full) => {
-          setBooks((prev) => prev.map((b) => b.id === bookId ? { ...b, _copies: full.copies } : b));
+        setToast({
+          message: quantity === 1 ? "Copia aggiunta" : `${quantity} copie aggiunte`,
+          type: "success",
         });
-        reloadBooks();
       })
       .catch((err) => setToast({ message: err.message, type: "error" }));
   }
 
-  function handleRemoveCopy(bookId, copyId) {
-    removeCopy(bookId, copyId)
+  function handleRemoveCopy() {
+    const target = copyDelete;
+    setCopyDelete(null);
+    if (!target) return;
+
+    removeCopy(target.bookId, target.copyId)
       .then(() => {
         setToast({ message: "Copia rimossa", type: "success" });
-        getBook(bookId).then((full) => {
-          setBooks((prev) => prev.map((b) => b.id === bookId ? { ...b, _copies: full.copies } : b));
-        });
-        reloadBooks();
+        return refreshBookCopies(target.bookId);
       })
       .catch((err) => setToast({ message: err.message, type: "error" }));
   }
@@ -168,8 +189,8 @@ export default function BooksAdmin() {
                 onEdit={() => openEdit(book)}
                 onDelete={() => setDeleteId(book.id)}
                 onToggleCopies={() => toggleCopies(book.id)}
-                onAddCopy={() => handleAddCopy(book.id)}
-                onRemoveCopy={(copyId) => handleRemoveCopy(book.id, copyId)}
+                onAddCopy={(quantity) => handleAddCopy(book.id, quantity)}
+                onRemoveCopy={(copy) => setCopyDelete({ bookId: book.id, copyId: copy.id, code: copy.code })}
               />
             ))}
           </tbody>
@@ -183,14 +204,29 @@ export default function BooksAdmin() {
           onCancel={() => setDeleteId(null)}
         />
       )}
+      {copyDelete && (
+        <ConfirmModal
+          message={`Sei sicuro di voler eliminare la copia ${copyDelete.code}?`}
+          onConfirm={handleRemoveCopy}
+          onCancel={() => setCopyDelete(null)}
+        />
+      )}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }
 
 function BooksAdminRow({ book, expanded, onEdit, onDelete, onToggleCopies, onAddCopy, onRemoveCopy }) {
+  const [copyQuantity, setCopyQuantity] = useState(1);
   const copies = book._copies || [];
   const totalCopies = book.totalCopies ?? copies.length;
+
+  function handleAddCopies(e) {
+    e.preventDefault();
+    const quantity = Math.max(1, parseInt(copyQuantity, 10) || 1);
+    onAddCopy(quantity);
+    setCopyQuantity(1);
+  }
 
   return (
     <>
@@ -229,12 +265,22 @@ function BooksAdminRow({ book, expanded, onEdit, onDelete, onToggleCopies, onAdd
                       {c.status === "available" ? "Disponibile" : "In prestito"}
                     </span>
                     {c.status === "available" && (
-                      <button className="ba-copy-remove" onClick={() => onRemoveCopy(c.id)}>✕</button>
+                      <button className="ba-copy-remove" onClick={() => onRemoveCopy(c)}>✕</button>
                     )}
                   </div>
                 ))}
               </div>
-              <button className="ba-copy-add" onClick={onAddCopy}>+ Aggiungi copia</button>
+              <form className="ba-copy-add-form" onSubmit={handleAddCopies}>
+                <input
+                  className="ba-copy-quantity"
+                  type="number"
+                  min={1}
+                  value={copyQuantity}
+                  onChange={(e) => setCopyQuantity(e.target.value)}
+                  aria-label="Numero copie da aggiungere"
+                />
+                <button className="ba-copy-add" type="submit">+ Aggiungi</button>
+              </form>
             </div>
           </td>
         </tr>

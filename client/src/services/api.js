@@ -114,9 +114,12 @@ export function uploadCover(bookId, file) {
   });
 }
 
-// POST /api/books/:id/copies -> add a copy (admin)
-export function addCopy(bookId) {
-  return request(`/api/books/${bookId}/copies`, { method: "POST" });
+// POST /api/books/:id/copies -> add one or more copies (admin)
+export function addCopy(bookId, quantity = 1) {
+  return request(`/api/books/${bookId}/copies`, {
+    method: "POST",
+    body: JSON.stringify({ quantity }),
+  });
 }
 
 // DELETE /api/books/:id/copies/:copyId -> remove a copy (admin)

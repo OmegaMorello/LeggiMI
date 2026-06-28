@@ -93,7 +93,7 @@
 
 .book-form-textarea {
   resize: vertical;
-  min-height: 60px;
+  min-height: 150px;
 }
 
 .book-form-input--short {

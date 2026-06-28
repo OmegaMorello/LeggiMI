@@ -135,7 +135,7 @@ export default function BookForm({ book, onSubmit, onCancel, loading }) {
           <div className="book-form-row">
             <label className="book-form-label">
               Descrizione
-              <textarea name="description" value={form.description} onChange={handleChange} rows={3} className="book-form-input book-form-textarea" />
+              <textarea name="description" value={form.description} onChange={handleChange} rows={6} className="book-form-input book-form-textarea" />
             </label>
           </div>
 
