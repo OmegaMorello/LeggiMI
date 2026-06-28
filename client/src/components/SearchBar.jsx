@@ -13,7 +13,8 @@ export default function SearchBar({ q, onSearch }) {
                 value={localValue}
                 onChange={(e) => setLocalValue(e.target.value)}
             />
-            <button type="submit">Cerca</button>
+            <button className="search-button" type="submit">Cerca</button>
+            <button className="reset-button" type="button" onClick={() => { setLocalValue(""); onSearch(""); }}>Reset</button>
             </form>
         </div>
     );

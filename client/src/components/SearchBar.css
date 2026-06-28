@@ -35,7 +35,7 @@
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
-.search-bar button {
+.search-button {
   padding: 11px 20px;
   font: inherit;
   font-size: 14px;
@@ -49,10 +49,31 @@
   white-space: nowrap;
 }
 
-.search-bar button:hover {
+.search-button button:hover {
   opacity: 0.92;
 }
 
-.search-bar button:active {
+.search-button button:active {
   transform: translateY(1px);
 }
+
+.reset-button {
+  padding: 11px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.reset-button:hover {
+  color: var(--text-h);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
