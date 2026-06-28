@@ -32,6 +32,7 @@ export default function Sidebar() {
           <span className="sidebar-section-label">Admin</span>
           <NavLink to="/admin/books" className="sidebar-link">Gestione libri</NavLink>
           <NavLink to="/admin/loans" className="sidebar-link">Gestione prestiti</NavLink>
+          <NavLink to="/admin/reservations" className="sidebar-link">Gestione prenotazioni</NavLink>
         </nav>
       )}
     </aside>

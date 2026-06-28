@@ -153,3 +153,24 @@ export function returnLoan(id) {
 export function getAllLoans() {
   return request("/api/loans/all");
 }
+
+// ---- Reservations --------------------------------------------
+
+export function createReservation({ bookId }) {
+  return request("/api/reservations", {
+    method: "POST",
+    body: JSON.stringify({ bookId }),
+  });
+}
+
+export function getMyReservations() {
+  return request("/api/reservations/mine");
+}
+
+export function cancelReservation(id) {
+  return request(`/api/reservations/${id}`, { method: "DELETE" });
+}
+
+export function getAllReservations() {
+  return request("/api/reservations/all");
+}

@@ -163,12 +163,16 @@
   color: var(--text);
 }
 
-/* ---- Borrow button ---- */
-.detail-borrow {
-  display: block;
-  width: 100%;
-  padding: 14px;
+/* ---- Action buttons ---- */
+.detail-actions {
+  display: flex;
+  gap: 12px;
   margin-top: 20px;
+}
+
+.detail-borrow {
+  flex: 1;
+  padding: 14px;
   font: inherit;
   font-size: 16px;
   font-weight: 600;
@@ -192,6 +196,24 @@
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+.detail-reserve {
+  padding: 14px 28px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.detail-reserve:hover {
+  background: var(--accent);
+  color: #fff;
 }
 
 /* ---- Loading / Error states ---- */

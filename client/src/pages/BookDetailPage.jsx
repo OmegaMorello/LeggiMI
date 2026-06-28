@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getBook, requestLoan } from "../services/api";
+import { getBook, requestLoan, createReservation } from "../services/api";
 import Toast from "../components/Toast";
 import "./BookDetailPage.css";
 
@@ -83,20 +83,35 @@ export default function BookDetailPage() {
         )}
       </div>
 
-      <button
-        className="detail-borrow"
-        disabled={!hasAvailable}
-        onClick={() =>
-          requestLoan({ bookId: book.id })
-            .then(() => {
-              setToast({ message: "Prestito richiesto con successo!", type: "success" });
-              return getBook(id).then((data) => setBook(data));
-            })
-            .catch((err) => setToast({ message: err.message, type: "error" }))
-        }
-      >
-        {hasAvailable ? "Noleggia questo libro" : "Non disponibile"}
-      </button>
+      <div className="detail-actions">
+        <button
+          className="detail-borrow"
+          disabled={!hasAvailable}
+          onClick={() =>
+            requestLoan({ bookId: book.id })
+              .then(() => {
+                setToast({ message: "Prestito richiesto con successo!", type: "success" });
+                return getBook(id).then((data) => setBook(data));
+              })
+              .catch((err) => setToast({ message: err.message, type: "error" }))
+          }
+        >
+          {hasAvailable ? "Noleggia questo libro" : "Non disponibile"}
+        </button>
+
+        {!hasAvailable && (
+          <button
+            className="detail-reserve"
+            onClick={() =>
+              createReservation({ bookId: book.id })
+                .then(() => setToast({ message: "Prenotazione effettuata!", type: "success" }))
+                .catch((err) => setToast({ message: err.message, type: "error" }))
+            }
+          >
+            Prenota
+          </button>
+        )}
+      </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
