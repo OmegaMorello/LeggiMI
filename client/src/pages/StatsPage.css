@@ -1,0 +1,135 @@
+.stats-page {
+  padding: 24px;
+  flex: 1;
+  max-width: 800px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stats-heading {
+  margin: 0 0 24px;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.5px;
+}
+
+.stats-loading,
+.stats-error,
+.stats-empty {
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.stats-error { color: #b3261e; }
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.stats-rank {
+  flex-shrink: 0;
+  width: 36px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+}
+
+.stats-cover-link {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.stats-cover {
+  width: 44px;
+  height: 62px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: var(--code-bg);
+  display: block;
+}
+
+.stats-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.stats-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+  text-decoration: none;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats-title:hover { color: var(--accent); }
+
+.stats-author {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.stats-bar-wrap {
+  height: 6px;
+  background: var(--code-bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.stats-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  min-width: 4px;
+  transition: width 0.4s ease;
+}
+
+.stats-counts {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+}
+
+.stats-count-primary {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.stats-count-secondary {
+  color: var(--text);
+}
+
+@media (max-width: 480px) {
+  .stats-rank { width: 28px; font-size: 14px; }
+  .stats-cover { width: 36px; height: 50px; }
+  .stats-title { font-size: 14px; }
+}
