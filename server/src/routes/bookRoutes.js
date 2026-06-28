@@ -249,25 +249,43 @@ router.post("/:id/cover", requireAdmin, upload.single("cover"), (req, res) => {
   }
 });
 
-// POST /api/books/:id/copies  -> add a copy (admin)
+// POST /api/books/:id/copies  -> add one or more copies (admin)
 router.post("/:id/copies", requireAdmin, (req, res) => {
   const bookId = parseInt(req.params.id);
+  const quantity = Number(req.body?.quantity ?? 1);
+
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100) {
+    return res.status(400).json({ error: "Quantità copie non valida" });
+  }
 
   try {
     const book = db.prepare("SELECT * FROM books WHERE id = ?").get(bookId);
     if (!book) return res.status(404).json({ error: "Libro non trovato" });
 
-    const maxCopy = db.prepare(
-      "SELECT COUNT(*) as count FROM copies WHERE book_id = ?"
-    ).get(bookId);
-    const code = `${bookId}-${String(maxCopy.count + 1).padStart(3, "0")}`;
+    const existingCodes = db.prepare("SELECT code FROM copies WHERE book_id = ?").all(bookId);
+    const maxCopyNumber = existingCodes.reduce((max, { code }) => {
+      const match = String(code).match(/-(\d+)$/);
+      const copyNumber = match ? parseInt(match[1], 10) : 0;
+      return Math.max(max, copyNumber);
+    }, 0);
 
-    const result = db.prepare(
-      "INSERT INTO copies (book_id, code, status) VALUES (?, ?, 'available')"
-    ).run(bookId, code);
+    const insertedIds = [];
+    db.transaction(() => {
+      const insertCopy = db.prepare(
+        "INSERT INTO copies (book_id, code, status) VALUES (?, ?, 'available')"
+      );
 
-    const copy = db.prepare("SELECT * FROM copies WHERE id = ?").get(result.lastInsertRowid);
-    res.status(201).json(copy);
+      for (let i = 1; i <= quantity; i++) {
+        const code = `${bookId}-${String(maxCopyNumber + i).padStart(3, "0")}`;
+        const result = insertCopy.run(bookId, code);
+        insertedIds.push(result.lastInsertRowid);
+      }
+    })();
+
+    const copies = db
+      .prepare(`SELECT * FROM copies WHERE id IN (${insertedIds.map(() => "?").join(",")})`)
+      .all(...insertedIds);
+    res.status(201).json({ copies });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
