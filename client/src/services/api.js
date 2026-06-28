@@ -71,6 +71,61 @@ export function getBook(id) {
 
 // ---- Loans ---------------------------------------------------
 
+// POST /api/books -> create a book (admin)
+export function createBook(data) {
+  return request("/api/books", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// PUT /api/books/:id -> update a book (admin)
+export function updateBook(id, data) {
+  return request(`/api/books/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+// DELETE /api/books/:id -> delete a book (admin)
+export function deleteBook(id) {
+  return request(`/api/books/${id}`, { method: "DELETE" });
+}
+
+// GET /api/books/lookup/:isbn -> lookup book by ISBN on Open Library
+export function lookupIsbn(isbn) {
+  return request(`/api/books/lookup/${isbn}`);
+}
+
+// POST /api/books/:id/cover -> upload cover image (admin, multipart)
+export function uploadCover(bookId, file) {
+  const formData = new FormData();
+  formData.append("cover", file);
+  return fetch(`/api/books/${bookId}/cover`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  }).then(async (res) => {
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `Upload failed: ${res.status}`);
+    }
+    return res.json();
+  });
+}
+
+// POST /api/books/:id/copies -> add a copy (admin)
+export function addCopy(bookId) {
+  return request(`/api/books/${bookId}/copies`, { method: "POST" });
+}
+
+// DELETE /api/books/:id/copies/:copyId -> remove a copy (admin)
+export function removeCopy(bookId, copyId) {
+  return request(`/api/books/${bookId}/copies/${copyId}`, { method: "DELETE" });
+}
+
+// ---- Loans ---------------------------------------------------
+
 // GET /api/loans/mine -> list current user's loans
 export function getMyLoans() {
   return request("/api/loans/mine");
