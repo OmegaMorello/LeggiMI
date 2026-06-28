@@ -1,0 +1,82 @@
+.ie-page {
+  padding: 24px;
+  flex: 1;
+  max-width: 800px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ie-heading {
+  margin: 0 0 28px;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.5px;
+}
+
+.ie-section {
+  margin-bottom: 32px;
+}
+
+.ie-section-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ie-loading {
+  font-size: 14px;
+  color: var(--text);
+  margin: 12px 0;
+}
+
+.ie-analysis-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ie-confirm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ie-confirm-btn {
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: #16a34a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.ie-confirm-btn:hover { opacity: 0.9; }
+.ie-confirm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ie-cancel-btn {
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-h);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ie-cancel-btn:hover { background: var(--accent-bg); }
+.ie-cancel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ie-no-data {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}

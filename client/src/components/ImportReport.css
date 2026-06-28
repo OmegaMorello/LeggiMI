@@ -1,0 +1,66 @@
+.import-report {
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.import-report-title {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.import-report-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.import-report-stat {
+  flex: 1;
+  min-width: 80px;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.import-report-stat--new { background: rgba(34, 197, 94, 0.12); }
+.import-report-stat--upd { background: rgba(59, 130, 246, 0.12); }
+.import-report-stat--skip { background: var(--code-bg); }
+.import-report-stat--err { background: rgba(239, 68, 68, 0.12); }
+
+.import-report-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.import-report-label {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.import-report-details {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.import-report-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.import-report-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}

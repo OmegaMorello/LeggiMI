@@ -6,6 +6,8 @@ import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, unlinkSync } from "node:fs";
 import { extname, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse } from "csv-parse/sync";
+import { stringify } from "csv-stringify/sync";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const uploadsDir = join(__dirname, "../../uploads/covers");
@@ -92,6 +94,157 @@ router.get("/lookup/:isbn", requireAdmin, async (req, res) => {
       description,
       cover_url: coverUrl,
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET /api/books/export/csv  -> download catalog as CSV (admin)
+router.get("/export/csv", requireAdmin, (req, res) => {
+  try {
+    const books = db.prepare(
+      `SELECT b.title, b.author, b.genre, b.year, b.isbn, b.description, b.cover_url,
+              (SELECT COUNT(*) FROM copies WHERE book_id = b.id) AS copies
+       FROM books b ORDER BY b.id`
+    ).all();
+
+    const csv = stringify(books, {
+      header: true,
+      columns: ["title", "author", "genre", "year", "isbn", "description", "cover_url", "copies"],
+    });
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", 'attachment; filename="catalogo.csv"');
+    res.send(csv);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST /api/books/import/csv  -> analyze or import CSV (admin)
+const csvUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+
+async function fetchCoverFromIsbn(isbn) {
+  const clean = isbn.replace(/[^0-9Xx]/g, "");
+  if (!clean) return null;
+  const resp = await fetch(`https://openlibrary.org/isbn/${clean}.json`);
+  if (!resp.ok) return null;
+  const data = await resp.json();
+  if (data.covers && data.covers.length > 0) {
+    return `https://covers.openlibrary.org/b/id/${data.covers[0]}-L.jpg`;
+  }
+  return null;
+}
+
+router.post("/import/csv", requireAdmin, csvUpload.single("file"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "File CSV mancante" });
+
+  const dryRun = req.body.dryRun === "true";
+  const duplicateStrategy = req.body.duplicateStrategy || "skip";
+
+  try {
+    const records = parse(req.file.buffer, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+      bom: true,
+    });
+
+    const nuovi = [];
+    const duplicati = [];
+    const scartati = [];
+
+    for (let i = 0; i < records.length; i++) {
+      const row = records[i];
+      const rowNum = i + 2;
+
+      const title = (row.title || "").trim();
+      const author = (row.author || "").trim();
+
+      if (!title || !author) {
+        scartati.push({ riga: rowNum, motivo: !title && !author ? "title e author mancanti" : !title ? "title mancante" : "author mancante" });
+        continue;
+      }
+
+      const isbn = (row.isbn || "").trim() || null;
+      const entry = {
+        title, author,
+        genre: (row.genre || "").trim() || null,
+        year: parseInt(row.year) || null,
+        isbn,
+        description: (row.description || "").trim() || null,
+        cover_url: (row.cover_url || "").trim() || null,
+        copies: Math.max(1, parseInt(row.copies) || 1),
+      };
+
+      if (isbn) {
+        const existing = db.prepare("SELECT id FROM books WHERE isbn = ?").get(isbn);
+        if (existing) {
+          duplicati.push({ ...entry, existingId: existing.id, riga: rowNum });
+          continue;
+        }
+      }
+
+      nuovi.push({ ...entry, riga: rowNum });
+    }
+
+    if (dryRun) {
+      return res.json({
+        nuovi: nuovi.map((r) => ({ riga: r.riga, title: r.title, author: r.author, copies: r.copies })),
+        duplicati: duplicati.map((r) => ({ riga: r.riga, title: r.title, author: r.author, isbn: r.isbn })),
+        scartati,
+      });
+    }
+
+    let inseriti = 0;
+    let aggiornati = 0;
+    let saltati = 0;
+
+    const insertBook = db.prepare(
+      `INSERT INTO books (title, author, genre, year, isbn, cover_url, description) VALUES (?, ?, ?, ?, ?, ?, ?)`
+    );
+    const insertCopy = db.prepare(
+      "INSERT INTO copies (book_id, code, status) VALUES (?, ?, 'available')"
+    );
+    const updateBook = db.prepare(
+      `UPDATE books SET title = ?, author = ?, genre = ?, year = ?, description = ?, cover_url = ? WHERE id = ?`
+    );
+
+    const processNew = async (entry) => {
+      let coverUrl = entry.cover_url;
+      if (!coverUrl && entry.isbn) {
+        try { coverUrl = await fetchCoverFromIsbn(entry.isbn); } catch {}
+      }
+      db.transaction(() => {
+        const result = insertBook.run(entry.title, entry.author, entry.genre, entry.year, entry.isbn, coverUrl || null, entry.description);
+        const bookId = result.lastInsertRowid;
+        for (let c = 1; c <= entry.copies; c++) {
+          insertCopy.run(bookId, `${bookId}-${String(c).padStart(3, "0")}`);
+        }
+      })();
+      inseriti++;
+    };
+
+    for (const entry of nuovi) {
+      await processNew(entry);
+    }
+
+    for (const entry of duplicati) {
+      if (duplicateStrategy === "update") {
+        let coverUrl = entry.cover_url;
+        if (!coverUrl && entry.isbn) {
+          try { coverUrl = await fetchCoverFromIsbn(entry.isbn); } catch {}
+        }
+        updateBook.run(entry.title, entry.author, entry.genre, entry.year, entry.description, coverUrl || null, entry.existingId);
+        aggiornati++;
+      } else {
+        saltati++;
+      }
+    }
+
+    res.json({ inseriti, aggiornati, saltati, scartati });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -314,16 +467,6 @@ router.delete("/:id/copies/:copyId", requireAdmin, (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
-});
-
-// ---- Level 3 -----------------------------------------------
-
-router.get("/export/csv", (req, res) => {
-  res.status(501).json({ error: "TODO: export CSV" });
-});
-
-router.post("/import/csv", (req, res) => {
-  res.status(501).json({ error: "TODO: import CSV" });
 });
 
 export default router;
