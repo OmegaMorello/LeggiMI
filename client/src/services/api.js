@@ -181,3 +181,40 @@ export function getMostRequested(limit) {
   const params = limit ? `?limit=${limit}` : "";
   return request(`/api/stats/most-requested${params}`);
 }
+
+// ---- Import / Export -----------------------------------------
+
+export async function exportBooksCsv() {
+  const res = await fetch("/api/books/export/csv", { credentials: "include" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || `Export failed: ${res.status}`);
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "catalogo.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export function importBooksCsv(file, { dryRun = false, duplicateStrategy = "skip" } = {}) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("dryRun", String(dryRun));
+  formData.append("duplicateStrategy", duplicateStrategy);
+  return fetch("/api/books/import/csv", {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  }).then(async (res) => {
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `Import failed: ${res.status}`);
+    }
+    return res.json();
+  });
+}
