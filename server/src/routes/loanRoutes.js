@@ -98,16 +98,38 @@ router.post("/:id/return", requireAuth, (req, res) => {
     ) {
       return res.status(403).json({ error: "Forbidden" });
     }
+    let promoted = false;
     db.transaction(() => {
+      const today = new Date();
+      const todayStr = today.toISOString().slice(0, 10);
+
       db.prepare(
         "UPDATE loans SET return_date = ?, status = 'returned' WHERE id = ?",
-      ).run(new Date().toISOString().slice(0, 10), loanId);
-      db.prepare("UPDATE copies SET status = 'available' WHERE id = ?").run(
-        loan.copy_id,
-      );
+      ).run(todayStr, loanId);
+
+      const copy = db.prepare("SELECT * FROM copies WHERE id = ?").get(loan.copy_id);
+      const bookId = copy.book_id;
+
+      const nextReservation = db.prepare(
+        "SELECT * FROM reservations WHERE book_id = ? AND status = 'waiting' ORDER BY created_at ASC LIMIT 1"
+      ).get(bookId);
+
+      if (nextReservation) {
+        const dueDate = new Date(today);
+        dueDate.setDate(dueDate.getDate() + 14);
+
+        db.prepare(
+          "INSERT INTO loans (user_id, copy_id, start_date, due_date, status) VALUES (?, ?, ?, ?, 'active')"
+        ).run(nextReservation.user_id, loan.copy_id, todayStr, dueDate.toISOString().slice(0, 10));
+
+        db.prepare("UPDATE reservations SET status = 'fulfilled' WHERE id = ?").run(nextReservation.id);
+        promoted = true;
+      } else {
+        db.prepare("UPDATE copies SET status = 'available' WHERE id = ?").run(loan.copy_id);
+      }
     })();
 
-    res.status(200).json({ message: "Loan returned successfully" });
+    res.status(200).json({ message: promoted ? "Loan returned, next reservation promoted" : "Loan returned successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
