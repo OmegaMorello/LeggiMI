@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getBook } from "../services/api";
+import { requestLoan } from "../services/api";
 import "./BookDetailPage.css";
 
 const PLACEHOLDER =
@@ -84,7 +85,12 @@ export default function BookDetailPage() {
       <button
         className="detail-borrow"
         disabled={!hasAvailable}
-        onClick={() => {}}
+        onClick={() => 
+          requestLoan({ bookId: book.id })
+            .then(() => alert("Prestito richiesto con successo!"))
+            .then(() => getBook(id).then((data) => setBook(data)))
+            .catch((err) => alert(`Errore: ${err.message}`))
+        }
       >
         {hasAvailable ? "Noleggia questo libro" : "Non disponibile"}
       </button>

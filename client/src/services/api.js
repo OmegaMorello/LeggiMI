@@ -68,3 +68,30 @@ export function getBooks({ q, author, genre, year, available }) {
 export function getBook(id) {
   return request(`/api/books/${id}`);
 }
+
+// ---- Loans ---------------------------------------------------
+
+// GET /api/loans/mine -> list current user's loans
+export function getMyLoans() {
+  return request("/api/loans/mine");
+}
+
+// POST /api/loans -> request a loan
+export function requestLoan({ bookId }) {
+  return request("/api/loans", {
+    method: "POST",
+    body: JSON.stringify({ bookId }),
+  });
+}
+
+// POST /api/loans/:id/return -> return a loaned copy
+export function returnLoan(id) {
+  return request(`/api/loans/${id}/return`, {
+    method: "POST",
+  });
+}
+
+// GET /api/loans/all -> list all loans (admin)
+export function getAllLoans() {
+  return request("/api/loans/all");
+}
