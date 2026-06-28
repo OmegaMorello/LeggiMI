@@ -1,0 +1,134 @@
+.loan-card {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: box-shadow 0.15s;
+  align-items: stretch;
+}
+
+.loan-card:hover {
+  box-shadow: var(--shadow);
+}
+
+.loan-card--overdue {
+  border-color: #ef4444;
+}
+
+.loan-cover-link {
+  flex-shrink: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+.loan-cover {
+  width: 80px;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  background: var(--code-bg);
+  display: block;
+}
+
+.loan-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.loan-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.loan-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+  text-decoration: none;
+  line-height: 1.3;
+}
+
+.loan-title:hover {
+  color: var(--accent);
+}
+
+.loan-status {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.loan-status--active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+}
+
+.loan-status--overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.loan-status--returned {
+  background: var(--code-bg);
+  color: var(--text);
+}
+
+.loan-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loan-detail {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.loan-return-btn {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.loan-return-btn:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 480px) {
+  .loan-card {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .loan-cover {
+    width: 70px;
+  }
+
+  .loan-title {
+    font-size: 14px;
+  }
+
+  .loan-detail {
+    font-size: 12px;
+  }
+}
