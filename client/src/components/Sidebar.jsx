@@ -33,6 +33,7 @@ export default function Sidebar() {
           <NavLink to="/admin/books" className="sidebar-link">Gestione libri</NavLink>
           <NavLink to="/admin/loans" className="sidebar-link">Gestione prestiti</NavLink>
           <NavLink to="/admin/reservations" className="sidebar-link">Gestione prenotazioni</NavLink>
+          <NavLink to="/admin/stats" className="sidebar-link">Statistiche</NavLink>
         </nav>
       )}
     </aside>

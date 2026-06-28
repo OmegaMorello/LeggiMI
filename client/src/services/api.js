@@ -174,3 +174,10 @@ export function cancelReservation(id) {
 export function getAllReservations() {
   return request("/api/reservations/all");
 }
+
+// ---- Stats ---------------------------------------------------
+
+export function getMostRequested(limit) {
+  const params = limit ? `?limit=${limit}` : "";
+  return request(`/api/stats/most-requested${params}`);
+}

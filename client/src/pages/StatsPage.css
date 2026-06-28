@@ -1,0 +1,32 @@
+.stats-page {
+  padding: 24px;
+  flex: 1;
+  max-width: 800px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stats-heading {
+  margin: 0 0 24px;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: -0.5px;
+}
+
+.stats-loading,
+.stats-error,
+.stats-empty {
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.stats-error { color: #b3261e; }
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
