@@ -1,0 +1,41 @@
+.export-panel {
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.export-panel-desc {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.export-panel-btn {
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.export-panel-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.export-panel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

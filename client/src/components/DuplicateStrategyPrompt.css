@@ -1,0 +1,41 @@
+.dup-prompt {
+  padding: 16px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+}
+
+.dup-prompt-text {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--text-h);
+  line-height: 1.5;
+}
+
+.dup-prompt-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dup-prompt-btn {
+  padding: 8px 18px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.dup-prompt-btn:hover { opacity: 0.85; }
+
+.dup-prompt-btn--skip {
+  color: var(--text-h);
+  background: var(--code-bg);
+}
+
+.dup-prompt-btn--update {
+  color: #fff;
+  background: #f59e0b;
+}

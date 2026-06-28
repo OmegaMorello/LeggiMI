@@ -1,0 +1,36 @@
+.csv-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.csv-uploader-input {
+  display: none;
+}
+
+.csv-uploader-btn {
+  align-self: flex-start;
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.csv-uploader-btn:hover { opacity: 0.9; }
+
+.csv-uploader-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.csv-uploader-hint {
+  font-size: 12px;
+  color: var(--text);
+  font-family: var(--mono);
+}
