@@ -79,7 +79,6 @@ router.post("/", requireAuth, (req, res) => {
 });
 
 // POST /api/loans/:id/return  -> return a loaned copy (L1)
-// TODO: promote the first reservation in the queue (L2).
 router.post("/:id/return", requireAuth, (req, res) => {
   const loanId = parseInt(req.params.id, 10);
   if (isNaN(loanId)) {
@@ -107,29 +106,48 @@ router.post("/:id/return", requireAuth, (req, res) => {
         "UPDATE loans SET return_date = ?, status = 'returned' WHERE id = ?",
       ).run(todayStr, loanId);
 
-      const copy = db.prepare("SELECT * FROM copies WHERE id = ?").get(loan.copy_id);
+      const copy = db
+        .prepare("SELECT * FROM copies WHERE id = ?")
+        .get(loan.copy_id);
       const bookId = copy.book_id;
 
-      const nextReservation = db.prepare(
-        "SELECT * FROM reservations WHERE book_id = ? AND status = 'waiting' ORDER BY created_at ASC LIMIT 1"
-      ).get(bookId);
+      const nextReservation = db
+        .prepare(
+          "SELECT * FROM reservations WHERE book_id = ? AND status = 'waiting' ORDER BY created_at ASC LIMIT 1",
+        )
+        .get(bookId);
 
       if (nextReservation) {
         const dueDate = new Date(today);
         dueDate.setDate(dueDate.getDate() + 14);
 
         db.prepare(
-          "INSERT INTO loans (user_id, copy_id, start_date, due_date, status) VALUES (?, ?, ?, ?, 'active')"
-        ).run(nextReservation.user_id, loan.copy_id, todayStr, dueDate.toISOString().slice(0, 10));
+          "INSERT INTO loans (user_id, copy_id, start_date, due_date, status) VALUES (?, ?, ?, ?, 'active')",
+        ).run(
+          nextReservation.user_id,
+          loan.copy_id,
+          todayStr,
+          dueDate.toISOString().slice(0, 10),
+        );
 
-        db.prepare("UPDATE reservations SET status = 'fulfilled' WHERE id = ?").run(nextReservation.id);
+        db.prepare(
+          "UPDATE reservations SET status = 'fulfilled' WHERE id = ?",
+        ).run(nextReservation.id);
         promoted = true;
       } else {
-        db.prepare("UPDATE copies SET status = 'available' WHERE id = ?").run(loan.copy_id);
+        db.prepare("UPDATE copies SET status = 'available' WHERE id = ?").run(
+          loan.copy_id,
+        );
       }
     })();
 
-    res.status(200).json({ message: promoted ? "Loan returned, next reservation promoted" : "Loan returned successfully" });
+    res
+      .status(200)
+      .json({
+        message: promoted
+          ? "Loan returned, next reservation promoted"
+          : "Loan returned successfully",
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });

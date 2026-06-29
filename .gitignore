@@ -29,6 +29,6 @@ _ignore_folder/
 .claude/
 
 # Editor
-.vscode/*
+.vscode/
 !.vscode/settings.json
 .idea/
