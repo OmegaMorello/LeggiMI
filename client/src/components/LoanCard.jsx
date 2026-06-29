@@ -8,8 +8,8 @@ const PLACEHOLDER =
 export default function LoanCard({ loan, onReturn, variant = "user" }) {
   const [imgSrc, setImgSrc] = useState(loan.cover_url || PLACEHOLDER);
 
-  const isActive = loan.status === "active";
-  const isOverdue = isActive && new Date(loan.due_date) < new Date();
+  const isActive = loan.status === "active" || loan.status === "overdue";
+  const isOverdue = loan.status === "overdue" || (loan.status === "active" && new Date(loan.due_date) < new Date());
   const isAdmin = variant === "admin";
 
   const statusLabel = loan.status === "returned" ? "Restituito" : isOverdue ? "In ritardo" : "Attivo";

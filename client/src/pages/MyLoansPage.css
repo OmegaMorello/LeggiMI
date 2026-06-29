@@ -31,6 +31,10 @@
   gap: 10px;
 }
 
+.loans-section-title--overdue {
+  color: #ef4444;
+}
+
 .loans-empty {
   font-size: 15px;
   color: var(--text);

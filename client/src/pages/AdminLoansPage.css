@@ -1,1 +1,68 @@
-/* AdminLoansPage shares loans-page styles from MyLoansPage.css */
+.loans-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.loans-header .loans-heading {
+  margin: 0;
+}
+
+.loans-reminder-btn {
+  padding: 10px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.loans-reminder-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.loans-reminder-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loans-section-title--overdue {
+  color: #ef4444;
+}
+
+.loans-preview-links {
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.loans-preview-links strong {
+  color: var(--text-h);
+}
+
+.loans-preview-links ul {
+  margin: 6px 0 0;
+  padding: 0 0 0 18px;
+}
+
+.loans-preview-links li {
+  margin-bottom: 4px;
+}
+
+.loans-preview-links a {
+  color: var(--accent);
+  word-break: break-all;
+}

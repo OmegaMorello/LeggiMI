@@ -182,6 +182,12 @@ export function getMostRequested(limit) {
   return request(`/api/stats/most-requested${params}`);
 }
 
+// ---- Reminders -----------------------------------------------
+
+export function sendReminders() {
+  return request("/api/reminders/send", { method: "POST" });
+}
+
 // ---- Import / Export -----------------------------------------
 
 export async function exportBooksCsv() {
