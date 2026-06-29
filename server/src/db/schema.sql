@@ -51,7 +51,8 @@ CREATE TABLE IF NOT EXISTS loans (
   start_date  TEXT    NOT NULL DEFAULT (date('now')),
   due_date    TEXT    NOT NULL,                -- start_date + loan period
   return_date TEXT,                            -- NULL until returned
-  status      TEXT    NOT NULL DEFAULT 'active'
+  status           TEXT    NOT NULL DEFAULT 'active',
+  reminder_sent_at TEXT
 );
 
 -- ---- Reservations ------------------------------------------
