@@ -52,6 +52,7 @@ export default function MyLoansPage() {
   if (loading) return <div className="loans-loading">Caricamento…</div>;
   if (error) return <div className="loans-error">Errore: {error}</div>;
 
+  const overdue = loans.filter((l) => l.status === "overdue");
   const active = loans.filter((l) => l.status === "active");
   const returned = loans.filter((l) => l.status === "returned");
   const waitingRes = reservations.filter((r) => r.status === "waiting");
@@ -65,6 +66,17 @@ export default function MyLoansPage() {
         <p className="loans-empty">Non hai ancora effettuato prestiti.</p>
       ) : (
         <>
+          {overdue.length > 0 && (
+            <section className="loans-section">
+              <h2 className="loans-section-title loans-section-title--overdue">Scaduti ({overdue.length})</h2>
+              <div className="loans-list">
+                {overdue.map((loan) => (
+                  <LoanCard key={loan.id} loan={loan} onReturn={handleReturn} />
+                ))}
+              </div>
+            </section>
+          )}
+
           {active.length > 0 && (
             <section className="loans-section">
               <h2 className="loans-section-title">Attivi ({active.length})</h2>
