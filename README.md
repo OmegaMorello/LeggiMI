@@ -75,7 +75,7 @@ Nessun altro software è necessario: il database SQLite viene creato automaticam
 ### 1. Clonare il repository
 
 ```bash
-git clone <url-del-repo>
+git clone https://github.com/OmegaMorello/LeggiMI
 cd LeggiMI
 ```
 
