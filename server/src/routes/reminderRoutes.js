@@ -7,7 +7,8 @@ const router = Router();
 // POST /api/reminders/send  -> manually trigger the reminder job (admin)
 router.post("/send", requireAdmin, async (req, res) => {
   try {
-    const result = await runReminderJob();
+    const force = req.body?.force === true;
+    const result = await runReminderJob({ force });
     res.json(result);
   } catch (error) {
     console.error(error);

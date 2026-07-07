@@ -60,7 +60,7 @@ app.use("/api/reminders", reminderRoutes);
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
 // --- Scheduled jobs -----------------------------------------
-cron.schedule("0 8 * * *", () => {
+cron.schedule("0 8-20 * * *", () => {
   console.log("[cron] Running daily reminder job…");
   runReminderJob().catch((err) =>
     console.error("[cron] Reminder job failed:", err),

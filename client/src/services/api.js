@@ -185,7 +185,10 @@ export function getMostRequested(limit) {
 // ---- Reminders -----------------------------------------------
 
 export function sendReminders() {
-  return request("/api/reminders/send", { method: "POST" });
+  return request("/api/reminders/send", {
+    method: "POST",
+    body: JSON.stringify({ force: true }),
+  });
 }
 
 // ---- Import / Export -----------------------------------------

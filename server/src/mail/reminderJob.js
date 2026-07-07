@@ -1,7 +1,7 @@
 import { db } from "../db/db.js";
 import { sendReminderEmail } from "./mailer.js";
 
-export async function runReminderJob() {
+export async function runReminderJob({ force = false } = {}) {
   const today = new Date().toISOString().slice(0, 10);
   const threeDaysLater = new Date();
   threeDaysLater.setDate(threeDaysLater.getDate() + 3);
@@ -25,6 +25,7 @@ export async function runReminderJob() {
     JOIN books b ON c.book_id = b.id
     WHERE l.status IN ('active', 'overdue')
       AND l.due_date <= ?
+      ${force ? "" : "AND (l.reminder_sent_at IS NULL OR date(l.reminder_sent_at) != date('now'))"}
   `).all(threshold);
 
   if (loans.length === 0) {
