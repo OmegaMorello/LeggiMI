@@ -23,10 +23,4 @@ db.pragma("foreign_keys = ON");
 const schema = readFileSync(join(__dirname, "schema.sql"), "utf-8");
 db.exec(schema);
 
-// Migrations: add columns that CREATE TABLE IF NOT EXISTS won't add to existing DBs.
-const cols = db.prepare("PRAGMA table_info(loans)").all().map((c) => c.name);
-if (!cols.includes("reminder_sent_at")) {
-  db.exec("ALTER TABLE loans ADD COLUMN reminder_sent_at TEXT");
-}
-
 console.log("Database ready:", dbPath);
