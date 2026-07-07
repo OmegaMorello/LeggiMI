@@ -32,3 +32,6 @@ _ignore_folder/
 .vscode/
 !.vscode/settings.json
 .idea/
+
+# Obsidian
+.obsidian/
